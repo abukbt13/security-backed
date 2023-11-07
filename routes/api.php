@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\LogController;
 use App\Http\Controllers\OffenceController;
 use App\Http\Controllers\UsersController;
 use Illuminate\Http\Request;
@@ -28,12 +30,21 @@ Route::post('case/create',[UsersController::class,'create']);
 
 Route::post('case/create',[OffenceController::class,'create']);
 Route::get('case/show',[OffenceController::class,'show']);
+
 Route::get('case/single/{id}/{secret}',[OffenceController::class,'show_single']);
-//Route::group(['middleware' => 'auth:sanctum'], function () {
-//    Route::post('profile/update', [ProfileController::class, 'update']);
-//
-//    Route::group(['middleware' => 'is_admin'], function () {
-//        Route::post('files/update/{id}', [FilesController::class, 'update']);
-//        Route::get('files/delete/{id}', [FilesController::class, 'delete']);
-//    });
-//});
+
+
+
+//protect the route from unauthorised user
+Route::group(['middleware' => 'auth:sanctum'], function () {
+    Route::get('/user', function (Request $request)
+    {return $request->user();
+    });
+    Route::get('auth/user',[UsersController::class,'auth']);
+
+    Route::group(['middleware' => 'admin'], function () {
+        Route::post('admin/create',[AdminController::class,'create']);
+        Route::get('admin/show',[AdminController::class,'show_admin']);
+        Route::get('log/show_logs',[LogController::class,'show']);
+    });
+});
