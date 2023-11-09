@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\CourtCaseController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\OffenceController;
 use App\Http\Controllers\UsersController;
@@ -30,6 +31,11 @@ Route::post('case/create',[UsersController::class,'create']);
 
 Route::post('case/create',[OffenceController::class,'create']);
 Route::get('case/show',[OffenceController::class,'show']);
+
+Route::post('court/create',[CourtCaseController::class,'create']);
+Route::get('court/show',[CourtCaseController::class,'show']);
+Route::post('court/edit/{id}',[CourtCaseController::class,'edit']);
+Route::post('court/status/{id}',[CourtCaseController::class,'change_status']);
 
 Route::get('case/single/{id}/{secret}',[OffenceController::class,'show_single']);
 
