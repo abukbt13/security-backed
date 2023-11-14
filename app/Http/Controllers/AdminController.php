@@ -27,7 +27,7 @@ class AdminController extends Controller
 
         $user = new User();
         $user->email = $data['email'];
-        $user->password = Hash::make($request->password);
+        $user->password = hash('sha256', $request->password);
         $user->save();
         storelog('New user registration', $user,'Linux OS');
 

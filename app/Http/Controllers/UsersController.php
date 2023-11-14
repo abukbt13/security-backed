@@ -30,7 +30,7 @@ class UsersController extends Controller
 
         $user = new User();
         $user->email = $data['email'];
-        $user->password = Hash::make($request->password);
+        $user->password = hash('sha256', $request->password);
         $user->save();
         if (Auth::attempt(['email' => $data['email'], 'password' => $data ['password']])) {
             $token = $user->createToken('token')->plainTextToken;
@@ -58,7 +58,7 @@ class UsersController extends Controller
             ],422);
         }
         $email = request('email');
-        $password = request('password');
+        $password = hash('sha256', $request->password);
         $user = User::where('email', $email)->get()->first();
 
         if (Auth::attempt(['email' => $email, 'password' => $password])) {

@@ -19,6 +19,7 @@ class CourtCaseController extends Controller
             'defendant_name' => 'required',
             'case_name' => 'required',
             'type_of_case' => 'required',
+            'description' => 'required',
         ]);
 
         // Check validation failure and return errors if validation fails
@@ -28,7 +29,14 @@ class CourtCaseController extends Controller
                 'errors' => $validator->errors()
             ], 422);
         }
+        $key=$request['key'];
 
+        function encryptdata($data,$key){
+            $encryption_key= base64_encode($key);
+            $iv=openssl_random_pseudo_bytes(openssl_cipher_iv_length('aes-256-cbc'));
+            $encrypted = openssl_encrypt($data,'aes-256-cbc',$encryption_key,0,$iv);
+            return base64_encode($encrypted . '::' . $iv);
+        }
         // Create a new instance of the Court_case model
         $court_case = new Court_case();
 
@@ -39,6 +47,7 @@ class CourtCaseController extends Controller
         $court_case->defendant_id = $request->defendant_id;
         $court_case->defendant_name = $request->defendant_name;
         $court_case->case_name = $request->case_name;
+        $court_case->description =  encryptdata($request->description,$key);
         $court_case->type_of_case = $request->type_of_case;
 
         // Save the model to the database

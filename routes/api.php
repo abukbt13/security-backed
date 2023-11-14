@@ -33,20 +33,27 @@ Route::post('case/create',[OffenceController::class,'create']);
 Route::get('case/show',[OffenceController::class,'show']);
 
 Route::post('court/create',[CourtCaseController::class,'create']);
-Route::get('court/show',[CourtCaseController::class,'show']);
 Route::post('court/edit/{id}',[CourtCaseController::class,'edit']);
 Route::post('court/status/{id}',[CourtCaseController::class,'change_status']);
 
-Route::get('case/single/{id}/{secret}',[OffenceController::class,'show_single']);
 
 
 
 //protect the route from unauthorised user
 Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/user', function (Request $request)
-    {return $request->user();
-    });
+    {return $request->user();});
+
+
+    Route::get('case/single/{id}/{secret}',[OffenceController::class,'show_single']);
+
     Route::get('auth/user',[UsersController::class,'auth']);
+//    cases
+    Route::get('court/show',[CourtCaseController::class,'show']);
+
+
+
+
 
     Route::group(['middleware' => 'admin'], function () {
         Route::post('admin/create',[AdminController::class,'create']);

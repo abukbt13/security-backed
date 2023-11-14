@@ -19,6 +19,8 @@ return new class extends Migration
             $table->integer('plaintiff_id');
             $table->string('plaintiff_name');
             $table->string('case_name');
+            $table->string('description');
+            $table->string('status')->default('active');
             $table->string('type_of_case');
             $table->timestamps();
         });

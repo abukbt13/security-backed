@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Court_case;
 use App\Models\Offence;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -108,14 +109,31 @@ class OffenceController extends Controller
             list($encrypted_data,$iv) =array_pad(explode('::',base64_decode($data),2),2,null);
             return openssl_decrypt($encrypted_data,'aes-256-cbc',$encryption_key,0,$iv);
         }
-       $cases = Offence::find($id);
-        $title=dencryptdata($cases['title'],$key);
-        $description=dencryptdata($cases['description'],$key);
-       return response([
-           'status' => 'success',
-           'title' => $title,
-           'description' => $description,
-       ]);
+        $cases = Court_case::find($id);
+
+        // Assuming `dencryptdata` is your decryption function
+        $description = dencryptdata($cases['description'], $key);
+        $cases['description'] = $description;
+
+        if($description === false){
+            return response([
+                'status' => 'failed',
+                'message' => "Error Enter correct secret key",
+            ]);
+        }
+        {
+            return response([
+                'status' => 'success',
+                'message' => "Data retrieved successfully",
+                'data' => $cases,
+            ]);
+        }
+
+        // Include the decrypted description in the response along with other attributes
+
+
+
+
     }
 
     /**
