@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CourtCaseController;
+use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\EvidenceController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\OffenceController;
@@ -50,9 +51,13 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('auth/user',[UsersController::class,'auth']);
 //    cases
     Route::get('court/show',[CourtCaseController::class,'show']);
-    //Evidences
+    //Evidences Pictures
     Route::post('evidence/picture/add',[EvidenceController::class,'create']);
     Route::get('evidence/picture/show',[EvidenceController::class,'show_all']);
+
+    //Document pictures
+    Route::post('document/add',[DocumentController::class,'add']);
+    Route::get('document/show',[DocumentController::class,'show']);
 
 
 
