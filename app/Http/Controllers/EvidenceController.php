@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Evidence;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class EvidenceController extends Controller
@@ -27,14 +28,14 @@ class EvidenceController extends Controller
         }
         $pic = $request->file('picture');
         $picName = time() . '_' .  $pic->getClientOriginalName();
-        $pic->move(public_path('Evidences'), $picName);
+        $pic->move(public_path('Evidences/Pictures'), $picName);
 
 
 
         $picture = new Evidence();
         $picture->description = $request->description;
         $picture->picture = $picName;
-//        $picture->user_id = Auth::user()->id;
+        $picture->user_id = Auth::user()->id;
         $picture->save();
 
         return response([
@@ -43,11 +44,12 @@ class EvidenceController extends Controller
         ]);
     }
     public function show_all(){
-//        $user_id = Auth::user()->id;
-        $picture=Evidence::all();
+        $user_id = Auth::user()->id;
+        $picture = Evidence::where('user_id', '=', $user_id)->get(); // Execute the query using get()
+
         return response([
             'status' => 'Success',
-            'picture' => $picture
+            'picture' => $picture,
         ]);
     }
 

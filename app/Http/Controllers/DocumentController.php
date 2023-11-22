@@ -67,11 +67,12 @@ class DocumentController extends Controller
      */
     public function show(Document $document)
     {
-        $documents=Document::all();
+        $user_id = Auth::user()->id;
+        $document = Document::where('user_id', '=', $user_id)->get(); // Execute the query using get()
+
         return response([
             'status' => 'Success',
-            'message' => 'Success retrieved',
-            'documents' => $documents
+            'documents' => $document,
         ]);
     }
 

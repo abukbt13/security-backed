@@ -7,6 +7,7 @@ use App\Http\Controllers\EvidenceController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\OffenceController;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\VideoController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -60,6 +61,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     //Document pictures
     Route::post('document/add',[DocumentController::class,'add']);
     Route::get('document/show',[DocumentController::class,'show']);
+
+//    videos
+    Route::post('video/add',[VideoController::class,'add']);
+    Route::get('video/show',[VideoController::class,'show']);
 
 
 
