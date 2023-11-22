@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Court_case;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class CourtCaseController extends Controller
@@ -38,6 +39,7 @@ class CourtCaseController extends Controller
             return base64_encode($encrypted . '::' . $iv);
         }
         // Create a new instance of the Court_case model
+        $user_id = Auth::user()->id;
         $court_case = new Court_case();
 
         // Assign values from the request to the model's properties
@@ -49,6 +51,8 @@ class CourtCaseController extends Controller
         $court_case->case_name = $request->case_name;
         $court_case->description =  encryptdata($request->description,$key);
         $court_case->type_of_case = $request->type_of_case;
+        $court_case->user_id = $user_id;
+
 
         // Save the model to the database
         $court_case->save();
@@ -65,11 +69,16 @@ class CourtCaseController extends Controller
 
     public function show()
     {
-        $cases = Court_case::select('id', 'case_name','plaintiff_name','defendant_name','type_of_case','defendant_id','plaintiff_id')->get();
+        $auth_user = Auth::user()->id;
+        $cases = Court_case::select('id', 'case_name', 'plaintiff_name', 'defendant_name', 'type_of_case', 'defendant_id', 'plaintiff_id')
+            ->where('user_id', $auth_user)
+            ->get();
+
         return response([
             'status' => 'success',
             'cases' => $cases,
         ]);
+
     }
     public function change_status(Request $request,$id)
     {

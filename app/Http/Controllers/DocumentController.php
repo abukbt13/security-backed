@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Document;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class DocumentController extends Controller
@@ -29,11 +30,12 @@ class DocumentController extends Controller
         $docName = time() . '_' .  $doc->getClientOriginalName();
         $doc->move(public_path('Evidences/Documents'), $docName);
 
-
+        $user_id=Auth::user()->id;
 
         $document = new Document();
         $document->description = $request->description;
         $document->document = $docName;
+        $document->user_id = $user_id;
 //        $picture->user_id = Auth::user()->id;
         $document->save();
 
