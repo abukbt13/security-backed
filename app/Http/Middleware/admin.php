@@ -16,12 +16,12 @@ class admin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        {
+
             if (Auth::user()->role == 'super_admin') {
                 return $next($request);
             }
 
             return new Response('Unauthorized', 403); // Return a response for unauthorized users
-        }
+
     }
 }

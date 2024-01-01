@@ -47,7 +47,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     {return $request->user();});
 
 
-    Route::get('case/single/{id}/{secret}',[OffenceController::class,'show_single']);
+    Route::get('case/single/{id}/{key}/{secret}',[OffenceController::class,'show_single']);
     Route::get('auth/user',[UsersController::class,'auth']);
 
 //    cases
@@ -71,6 +71,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     Route::group(['middleware' => 'admin'], function () {
         Route::post('admin/create',[AdminController::class,'create']);
+        Route::post('admin/edit',[AdminController::class,'edit']);
         Route::get('admin/show',[AdminController::class,'show_admin']);
         Route::get('log/show_logs',[LogController::class,'show']);
     });

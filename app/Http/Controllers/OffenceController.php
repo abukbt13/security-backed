@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Court_case;
 use App\Models\Offence;
+use App\Models\Secret_Key;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -21,10 +22,6 @@ class OffenceController extends Controller
      * Show the form for creating a new resource.
      */
     public function create(Request $request){
-
-
-
-
 
         $validator = Validator::make($request->all(), [
             'key' =>'required',
@@ -101,39 +98,40 @@ class OffenceController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function show_single(Request $request, $id, $secret) {
-        $key=$secret;
 
-        function dencryptdata($data,$key){
-            $encryption_key= base64_encode($key);
-            list($encrypted_data,$iv) =array_pad(explode('::',base64_decode($data),2),2,null);
-            return openssl_decrypt($encrypted_data,'aes-256-cbc',$encryption_key,0,$iv);
+    public function show_single(Request $request, $id, $kamt, $secret) {
+
+        $secret_key=Secret_Key::find($kamt);
+        $encrypted_key=$secret_key->key;
+
+        function dencryptdata($data, $key_to_use) {
+            $encryption_key = base64_encode($key_to_use);
+            list($encrypted_data, $iv) = array_pad(explode('::', base64_decode($data), 2), 2, null);
+            return openssl_decrypt($encrypted_data, 'aes-256-cbc', $encryption_key, 0, $iv);
         }
-        $cases = Court_case::find($id);
 
-        // Assuming `dencryptdata` is your decryption function
-        $description = dencryptdata($cases['description'], $key);
-        $cases['description'] = $description;
+        $show_key = dencryptdata($encrypted_key, $secret);
 
-        if($description === false){
-            return response([
-                'status' => 'failed',
-                'message' => "Error Enter correct secret key",
-            ]);
-        }
-        {
+
+        if ($show_key === $secret) {
+
+            $cases = Court_case::find($id);
+
+            // Assuming `dencryptdata` is your decryption function
+            $description = dencryptdata($cases['description'], $show_key);
+            $cases['description'] = $description;
             return response([
                 'status' => 'success',
                 'message' => "Data retrieved successfully",
                 'data' => $cases,
             ]);
         }
-
-        // Include the decrypted description in the response along with other attributes
-
-
-
-
+        else{
+            return response([
+                'status' => 'failed',
+                'message' => "Error Enter correct secret key",
+            ]);
+        }
     }
 
     /**

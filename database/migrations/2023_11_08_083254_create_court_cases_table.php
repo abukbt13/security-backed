@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('court_cases', function (Blueprint $table) {
             $table->id();
-            $table->string('key');
+            $table->integer('key_id');
             $table->integer('defendant_id');
             $table->string('defendant_name');
             $table->integer('plaintiff_id');

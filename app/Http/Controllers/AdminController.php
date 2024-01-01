@@ -11,7 +11,6 @@ class AdminController extends Controller
 {
     public function create(Request $request)
     {
-
         $rules = [
             'email' => 'required|email|unique:users',
             'password' => 'required',
@@ -28,6 +27,32 @@ class AdminController extends Controller
         $user = new User();
         $user->email = $data['email'];
         $user->password = hash('sha256', $request->password);
+        $user->save();
+        storelog('New user registration', $user,'Linux OS');
+
+        return response([
+            'status'=>'success',
+            'message'=>"User created successfully",
+            'user'=>$user
+        ]);
+    }
+    public function edit(Request $request)
+    {
+        $rules = [
+            'email' => 'required|email|unique:users',
+            'name' => 'required',
+        ];
+        $data = request()->all();
+        $valid = Validator::make($data, $rules);
+        if (count($valid->errors())){
+            return response([
+                'status' => 'failed',
+                'error' => $valid->errors()
+            ]);
+        }
+
+        $user = User::();
+        $user->email = $data['email'];
         $user->save();
         storelog('New user registration', $user,'Linux OS');
 

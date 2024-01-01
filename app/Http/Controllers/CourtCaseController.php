@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Court_case;
+use App\Models\Secret_Key;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -30,20 +31,27 @@ class CourtCaseController extends Controller
                 'errors' => $validator->errors()
             ], 422);
         }
-        $key=$request['key'];
-
         function encryptdata($data,$key){
             $encryption_key= base64_encode($key);
             $iv=openssl_random_pseudo_bytes(openssl_cipher_iv_length('aes-256-cbc'));
             $encrypted = openssl_encrypt($data,'aes-256-cbc',$encryption_key,0,$iv);
             return base64_encode($encrypted . '::' . $iv);
         }
-        // Create a new instance of the Court_case model
+
         $user_id = Auth::user()->id;
         $court_case = new Court_case();
 
+        $key=$request['key'];
+        $secret_key=new Secret_Key();
+        $secret_key->user_id= $user_id;
+        $secret_key->key= encryptdata($request->key,$key);
+        $secret_key->save();
+
+        // Create a new instance of the Court_case model
+
+
         // Assign values from the request to the model's properties
-        $court_case->key = $request->key;
+        $court_case->key = $secret_key->id;
         $court_case->plaintiff_id = $request->plaintiff_id;
         $court_case->plaintiff_name = $request->plaintiff_name;
         $court_case->defendant_id = $request->defendant_id;
@@ -70,7 +78,7 @@ class CourtCaseController extends Controller
     public function show()
     {
         $auth_user = Auth::user()->id;
-        $cases = Court_case::select('id', 'case_name', 'plaintiff_name', 'defendant_name', 'type_of_case', 'defendant_id', 'plaintiff_id')
+        $cases = Court_case::select('id','key', 'case_name', 'plaintiff_name', 'defendant_name', 'type_of_case', 'defendant_id', 'plaintiff_id')
             ->where('user_id', $auth_user)
             ->get();
 
