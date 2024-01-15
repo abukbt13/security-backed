@@ -53,6 +53,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 //    cases
     Route::post('court/create',[CourtCaseController::class,'create']);
     Route::get('court/show',[CourtCaseController::class,'show']);
+    Route::get('court/show_deactivated',[CourtCaseController::class,'show_deactivated']);
+    Route::get('court/deactivate/{id}',[CourtCaseController::class,'deactivate']);
 
     //Evidences Pictures
     Route::post('evidence/picture/add',[EvidenceController::class,'create']);
@@ -71,7 +73,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     Route::group(['middleware' => 'admin'], function () {
         Route::post('admin/create',[AdminController::class,'create']);
-        Route::post('admin/edit',[AdminController::class,'edit']);
+        Route::post('admin/edit/{id}',[AdminController::class,'edit']);
+        Route::get('admin/show_cases',[AdminController::class,'show_cases']);
         Route::get('admin/show',[AdminController::class,'show_admin']);
         Route::get('log/show_logs',[LogController::class,'show']);
     });

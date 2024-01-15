@@ -80,8 +80,34 @@ class CourtCaseController extends Controller
         $auth_user = Auth::user()->id;
         $cases = Court_case::select('id','key', 'case_name', 'plaintiff_name', 'defendant_name', 'type_of_case', 'defendant_id', 'plaintiff_id')
             ->where('user_id', $auth_user)
+            ->where('status', 'active')
             ->get();
 
+        return response([
+            'status' => 'success',
+            'cases' => $cases,
+        ]);
+
+    }
+    public function show_deactivated()
+    {
+        $auth_user = Auth::user()->id;
+        $cases = Court_case::select('id','key', 'case_name', 'plaintiff_name', 'defendant_name', 'type_of_case', 'defendant_id', 'plaintiff_id')
+            ->where('user_id', $auth_user)
+            ->where('status', 'deactivated')
+            ->get();
+
+        return response([
+            'status' => 'success',
+            'cases' => $cases,
+        ]);
+
+    }
+    public function deactivate(Request $request,$id)
+    {
+        $cases =Court_case::find($id);
+        $cases['status'] = 'deactivated';
+        $cases->update();
         return response([
             'status' => 'success',
             'cases' => $cases,

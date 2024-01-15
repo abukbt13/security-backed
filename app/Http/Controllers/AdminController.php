@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Court_case;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -36,10 +37,10 @@ class AdminController extends Controller
             'user'=>$user
         ]);
     }
-    public function edit(Request $request)
+    public function edit(Request $request,$id)
     {
         $rules = [
-            'email' => 'required|email|unique:users',
+            'email' => 'required',
             'name' => 'required',
         ];
         $data = request()->all();
@@ -51,14 +52,15 @@ class AdminController extends Controller
             ]);
         }
 
-        $user = User::();
+        $user = User::find($id);
         $user->email = $data['email'];
-        $user->save();
-        storelog('New user registration', $user,'Linux OS');
+        $user->name = $data['name'];
+        $user->Update();
+        storelog('Update operation done', $user,'Linux OS');
 
         return response([
             'status'=>'success',
-            'message'=>"User created successfully",
+            'message'=>"User Updated successfully",
             'user'=>$user
         ]);
     }
@@ -68,6 +70,15 @@ class AdminController extends Controller
         return response([
             'status'=>'success',
             'users'=>$admin,
+        ]);
+
+    }
+    public function show_cases(Request $request)
+    {
+        $cases=Court_case::all();
+        return response([
+            'status'=>'success',
+            'cases'=>$cases,
         ]);
 
     }
