@@ -39,16 +39,13 @@ class CourtCaseController extends Controller
         }
 
         $user_id = Auth::user()->id;
-        $court_case = new Court_case();
-
         $key=$request['key'];
         $secret_key=new Secret_Key();
         $secret_key->user_id= $user_id;
         $secret_key->key= encryptdata($request->key,$key);
         $secret_key->save();
 
-        // Create a new instance of the Court_case model
-
+        $court_case = new Court_case();
 
         // Assign values from the request to the model's properties
         $court_case->key = $secret_key->id;
@@ -66,8 +63,8 @@ class CourtCaseController extends Controller
         $court_case->save();
 
         // Assuming that storelog and storerandom_log are custom functions
-        storelog($court_case['type_of_case'], 'Abraham', 'MacOs');
-        storerandom_log($court_case->id, '45', $request->key);
+        storelog($court_case['type_of_case'], 'alteration', 'MacOs');
+        storerandom_log($court_case->id, $user_id, $request->key);
 
         return response([
             'status' => 'success',
@@ -75,6 +72,45 @@ class CourtCaseController extends Controller
         ]);
     }
 
+    public function update(Request $request, $case_id)
+    {
+        $validator = Validator::make($request->all(), [
+                'key' => 'required',
+                'description' => 'required',
+             ]);
+
+        // Check validation failure and return errors if validation fails
+        if ($validator->fails()) {
+            return response([
+                'status' => 'failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+        $auth_user = Auth::user()->id;
+
+        function encryptdata($data,$key){
+            $encryption_key= base64_encode($key);
+            $iv=openssl_random_pseudo_bytes(openssl_cipher_iv_length('aes-256-cbc'));
+            $encrypted = openssl_encrypt($data,'aes-256-cbc',$encryption_key,0,$iv);
+            return base64_encode($encrypted . '::' . $iv);
+        }
+
+        $case_update = Court_case::where('user_id', $auth_user)
+            ->where('id', $case_id)
+            ->first();
+
+        $user_key=$request['key'];
+        $description=$request['description'];
+        $case_update->description =  encryptdata($description,$user_key);
+
+        $case_update->update();
+
+        return response([
+            'status' => 'success',
+            'cases' => $case_update,
+        ]);
+
+    }
     public function show()
     {
         $auth_user = Auth::user()->id;

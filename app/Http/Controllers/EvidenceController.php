@@ -13,7 +13,7 @@ class EvidenceController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Request $request){
+    public function create(Request $request,$case_id){
         $rules=[
             'description' => 'required',
             'picture' => 'required',
@@ -28,13 +28,14 @@ class EvidenceController extends Controller
         }
         $pic = $request->file('picture');
         $picName = time() . '_' .  $pic->getClientOriginalName();
-        $pic->move(public_path('Evidences/Pictures'), $picName);
+        $pic->storeAs('Evidences/Pictures', $picName, 'public');
 
 
 
         $picture = new Evidence();
         $picture->description = $request->description;
         $picture->picture = $picName;
+        $picture->case_id = $case_id;
         $picture->user_id = Auth::user()->id;
         $picture->save();
 
@@ -43,9 +44,10 @@ class EvidenceController extends Controller
             'data'=>$picture
         ]);
     }
-    public function show_all(){
+    public function show_all($case_id){
         $user_id = Auth::user()->id;
-        $picture = Evidence::where('user_id', '=', $user_id)->get(); // Execute the query using get()
+        $picture = Evidence::where('user_id', $user_id)->where('case_id',$case_id)
+        ->get(); // Execute the query using get()
 
         return response([
             'status' => 'Success',

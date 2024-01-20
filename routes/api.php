@@ -52,13 +52,14 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
 //    cases
     Route::post('court/create',[CourtCaseController::class,'create']);
+    Route::post('case/update/description/{case_id}',[CourtCaseController::class,'update']);
     Route::get('court/show',[CourtCaseController::class,'show']);
     Route::get('court/show_deactivated',[CourtCaseController::class,'show_deactivated']);
     Route::get('court/deactivate/{id}',[CourtCaseController::class,'deactivate']);
 
     //Evidences Pictures
-    Route::post('evidence/picture/add',[EvidenceController::class,'create']);
-    Route::get('evidence/picture/show',[EvidenceController::class,'show_all']);
+    Route::post('evidence/picture/add/{case_id}',[EvidenceController::class,'create']);
+    Route::get('evidence/picture/show/{case_id}',[EvidenceController::class,'show_all']);
 
     //Document pictures
     Route::post('document/add',[DocumentController::class,'add']);

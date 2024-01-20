@@ -28,7 +28,7 @@ class DocumentController extends Controller
         }
         $doc = $request->file('document');
         $docName = time() . '_' .  $doc->getClientOriginalName();
-        $doc->move(public_path('Evidences/Documents'), $docName);
+        $doc->storeAs('Evidences/Documents', $docName, 'public');
 
         $user_id=Auth::user()->id;
 
