@@ -12,7 +12,7 @@ class DocumentController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function add(Request $request)
+    public function add(Request $request,$case_id)
     {
         $rules=[
             'description' => 'required',
@@ -34,14 +34,15 @@ class DocumentController extends Controller
 
         $document = new Document();
         $document->description = $request->description;
+        $document->case_id = $case_id;
         $document->document = $docName;
         $document->user_id = $user_id;
 //        $picture->user_id = Auth::user()->id;
         $document->save();
 
         return response([
-            'status'=>'Success',
-            'message'=>'Success saved',
+            'status'=>'success',
+            'message'=>'Document Successfully  saved !',
             'document'=>$docName
         ]);
     }
@@ -65,10 +66,10 @@ class DocumentController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Document $document)
+    public function show(Document $document,$case_id)
     {
         $user_id = Auth::user()->id;
-        $document = Document::where('user_id', '=', $user_id)->get(); // Execute the query using get()
+        $document = Document::where('user_id', '=', $user_id)->where('case_id',$case_id)->get(); // Execute the query using get()
 
         return response([
             'status' => 'Success',

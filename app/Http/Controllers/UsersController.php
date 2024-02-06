@@ -156,7 +156,7 @@ class UsersController extends Controller
         else{
             return response([
                 'status'=>'failed',
-                'message'=>'The credentials were invalid',
+                'message'=>'Enter correct credentials !',
             ]);
         }
 

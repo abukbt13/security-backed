@@ -104,13 +104,14 @@ class OffenceController extends Controller
         $secret_key=Secret_Key::find($kamt);
         $encrypted_key=$secret_key->key;
 
+
         function dencryptdata($data, $key_to_use) {
             $encryption_key = base64_encode($key_to_use);
             list($encrypted_data, $iv) = array_pad(explode('::', base64_decode($data), 2), 2, null);
             return openssl_decrypt($encrypted_data, 'aes-256-cbc', $encryption_key, 0, $iv);
         }
 
-        $show_key = dencryptdata($encrypted_key, $secret);
+        $show_key = $encrypted_key;
 
 
         if ($show_key === $secret) {

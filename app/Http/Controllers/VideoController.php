@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Validator;
 class VideoController extends Controller
 {
 
-    public function add(Request $request)
+    public function add(Request $request,$case_id)
     {
         $rules=[
             'description' => 'required',
@@ -27,19 +27,21 @@ class VideoController extends Controller
         }
         $vid = $request->file('video');
         $vidName = time() . '_' .  $vid->getClientOriginalName();
-        $vid->move(public_path('Evidences/Videos'), $vidName);
+//        $vid->move(public_path('Evidences/Videos'), $vidName);
+        $vid->storeAs('Evidences/Videos', $vidName, 'public');
 
         $user_id=Auth::user()->id;
 
         $video = new Video();
         $video->description = $request->description;
         $video->video = $vidName;
+        $video->case_id = $case_id;
         $video->user_id = $user_id;
         $video->save();
 
         return response([
-            'status'=>'Success',
-            'message'=>'Successfully saved ',
+            'status'=>'success',
+            'message'=>'Video successfully saved ! ',
             'video'=>$video
         ]);
     }
@@ -55,13 +57,13 @@ class VideoController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Video $video)
+    public function show(Video $video,$case_id)
     {
         $user_id = Auth::user()->id;
-        $video = Video::where('user_id', '=', $user_id)->get(); // Execute the query using get()
+        $video = Video::where('user_id', '=', $user_id)->where('case_id',$case_id)->get(); // Execute the query using get()
 
         return response([
-            'status' => 'Success',
+            'status' => 'success',
             'videos' => $video,
         ]);
     }

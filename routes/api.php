@@ -57,18 +57,19 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('court/show',[CourtCaseController::class,'show']);
     Route::get('court/show_deactivated',[CourtCaseController::class,'show_deactivated']);
     Route::get('court/deactivate/{id}',[CourtCaseController::class,'deactivate']);
+    Route::get('court/activate/{id}',[CourtCaseController::class,'activate']);
 
     //Evidences Pictures
     Route::post('evidence/picture/add/{case_id}',[EvidenceController::class,'create']);
     Route::get('evidence/picture/show/{case_id}',[EvidenceController::class,'show_all']);
 
     //Document pictures
-    Route::post('document/add',[DocumentController::class,'add']);
-    Route::get('document/show',[DocumentController::class,'show']);
+    Route::post('document/add/{id}',[DocumentController::class,'add']);
+    Route::get('document/show/{case_id}',[DocumentController::class,'show']);
 
 //    videos
-    Route::post('video/add',[VideoController::class,'add']);
-    Route::get('video/show',[VideoController::class,'show']);
+    Route::post('video/add/{id}',[VideoController::class,'add']);
+    Route::get('video/show/{id}',[VideoController::class,'show']);
 
 
 

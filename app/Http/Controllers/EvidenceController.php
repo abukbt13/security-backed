@@ -40,7 +40,8 @@ class EvidenceController extends Controller
         $picture->save();
 
         return response([
-            'message'=>'Success',
+            'status'=>'success',
+            'message'=>'Picture saved successfully',
             'data'=>$picture
         ]);
     }
