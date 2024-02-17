@@ -28,7 +28,8 @@ class EvidenceController extends Controller
         }
         $pic = $request->file('picture');
         $picName = time() . '_' .  $pic->getClientOriginalName();
-        $pic->storeAs('Evidences/Pictures', $picName, 'public');
+        $pic->move(public_path('Evidences/Pictures'), $picName);
+//        $pic->storeAs('Evidences/Pictures', $picName, 'public');
 
 
 

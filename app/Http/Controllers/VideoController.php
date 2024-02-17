@@ -27,8 +27,8 @@ class VideoController extends Controller
         }
         $vid = $request->file('video');
         $vidName = time() . '_' .  $vid->getClientOriginalName();
-//        $vid->move(public_path('Evidences/Videos'), $vidName);
-        $vid->storeAs('Evidences/Videos', $vidName, 'public');
+        $vid->move(public_path('Evidences/Videos'), $vidName);
+//        $vid->storeAs('Evidences/Videos', $vidName, 'public');
 
         $user_id=Auth::user()->id;
 
