@@ -14,6 +14,7 @@ class AdminController extends Controller
     {
         $rules = [
             'email' => 'required|email|unique:users',
+            'name' => 'required',
             'password' => 'required',
         ];
         $data = request()->all();
@@ -27,6 +28,7 @@ class AdminController extends Controller
 
         $user = new User();
         $user->email = $data['email'];
+        $user->name = $data['name'];
         $user->password = hash('sha256', $request->password);
         $user->save();
         storelog('New user registration', $user,'Linux OS');

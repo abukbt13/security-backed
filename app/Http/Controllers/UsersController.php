@@ -79,60 +79,54 @@ class UsersController extends Controller
         $to=$user->phone;
         if (Auth::attempt(['email' => $email, 'password' => $password])) {
             $token = $user->createToken('token')->plainTextToken;
-            $otp = rand(999,10000);
-           $user->otp = $otp;
-           $user->update();
 
+//
+//            $otp = rand(999,10000);
+//           $user->otp = $otp;
+//           $user->update();
+//
+//            $curl = curl_init();
+//            $message ="Use OTP : $otp to proceed  logging into the system";
+//            $data = array(
+//                'api_token' => 'BjBz8xAii6Tb7c8C4xhTBrUJkl91cSYD3Kt3n3AtQy56LtBczsVE5b3IFORUIqMVrhnjMXfRM2XdYDbgfcA2FQ',
+//                'from' => 'SHARA',
+//                'to' => $to,
+//                'message' => $message
+//            );
+//
+//            curl_setopt_array($curl, array(
+//                CURLOPT_URL => 'https://app.sharasms.co.ke/api/sms/send',
+//                CURLOPT_RETURNTRANSFER => true,
+//                CURLOPT_ENCODING => '',
+//                CURLOPT_MAXREDIRS => 10,
+//                CURLOPT_TIMEOUT => 0,
+//                CURLOPT_FOLLOWLOCATION => true,
+//                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+//                CURLOPT_CUSTOMREQUEST => 'POST',
+//                CURLOPT_POSTFIELDS => http_build_query($data),
+//            ));
+//            curl_close($curl);
+//            $response = curl_exec($curl);
+//            $data = json_decode($response, true);
+//
+//            $status = $data['status'];
+//
 
-
-            $curl = curl_init();
-            $message ="Use OTP : $otp to proceed  logging into the system";
-            $data = array(
-                'api_token' => 'BjBz8xAii6Tb7c8C4xhTBrUJkl91cSYD3Kt3n3AtQy56LtBczsVE5b3IFORUIqMVrhnjMXfRM2XdYDbgfcA2FQ',
-                'from' => 'SHARA',
-                'to' => $to,
-                'message' => $message
-            );
-
-            curl_setopt_array($curl, array(
-                CURLOPT_URL => 'https://app.sharasms.co.ke/api/sms/send',
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_POSTFIELDS => http_build_query($data),
-            ));
-            curl_close($curl);
-            $response = curl_exec($curl);
-            $data = json_decode($response, true);
-
-            $status = $data['status'];
-            if($status == 'success'){
-                return response([
-                    'status' => 'success',
-                    'token' => $token,
-                    'user' => $user,
-                    'id' => $user->id,
-                    'otp' => $otp
-                ]);
-            }
+            return response([
+                'status' => 'success',
+                'token' => $token,
+                'user' => $user,
+//                'id' => $user->id,
+            ]);
+        }
             else{
                 return response([
                     'status' => 'Failed',
-                    'message' => 'Error  sending the OTP'
+                    'message' => 'Enter correct details'
                 ]);
             }
 
-        }
-        else{
-            return response([
-                'status' => 'failed',
-                'message' => 'Enter correct details',
-            ]);
-        }
+
     }
 
     public function auth(){
