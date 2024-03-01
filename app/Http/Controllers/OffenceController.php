@@ -48,7 +48,7 @@ class OffenceController extends Controller
 
         $title=$request->title;
         $description=$request->description;
-        storelog($title,$description,'MacOs');
+
 
         $offence->title = encryptdata($title,$key);
         $offence->description = encryptdata($description,$key);
@@ -56,6 +56,10 @@ class OffenceController extends Controller
 
         // Store the image path in the 'image' field
         $offence->save();
+        // Capture current date
+        $currentDate = Carbon::today();
+
+        storelog($title,$offence,$currentDate);
         storerandom_log($offence['id'],'45',$key);
         return response([
             'status'=>'success',

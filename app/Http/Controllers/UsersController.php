@@ -74,9 +74,11 @@ class UsersController extends Controller
             ],422);
         }
         $email = request('email');
+
         $password = hash('sha256', $request->password);
+
         $user = User::where('email', $email)->get()->first();
-        $to=$user->phone;
+//        $to=$user->phone;
         if (Auth::attempt(['email' => $email, 'password' => $password])) {
             $token = $user->createToken('token')->plainTextToken;
 
@@ -116,12 +118,11 @@ class UsersController extends Controller
                 'status' => 'success',
                 'token' => $token,
                 'user' => $user,
-//                'id' => $user->id,
             ]);
         }
             else{
                 return response([
-                    'status' => 'Failed',
+                    'status' => 'failed',
                     'message' => 'Enter correct details'
                 ]);
             }
