@@ -15,6 +15,7 @@ class AdminController extends Controller
         $rules = [
             'email' => 'required|email|unique:users',
             'name' => 'required',
+            'phone' => 'required',
             'password' => 'required',
         ];
         $data = request()->all();
@@ -28,6 +29,8 @@ class AdminController extends Controller
 
         $user = new User();
         $user->email = $data['email'];
+        $user_phone = $data['phone'];
+        $user->phone = '+254' . $user_phone;
         $user->name = $data['name'];
         $user->password = hash('sha256', $request->password);
         $user->save();
@@ -36,7 +39,7 @@ class AdminController extends Controller
         return response([
             'status'=>'success',
             'message'=>"User created successfully",
-            'user'=>$user
+//            'user'=>$user
         ]);
     }
     public function edit(Request $request,$id)
