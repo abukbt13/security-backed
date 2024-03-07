@@ -31,13 +31,11 @@ Route::post('auth/register',[UsersController::class,'register']);
 Route::post('auth/login',[UsersController::class,'login']);
 Route::post('auth/verify/{id}',[UsersController::class,'verify']);
 Route::get('auth/show-all',[UsersController::class,'show']);
-Route::post('case/create',[UsersController::class,'create']);
 
-Route::post('case/create',[OffenceController::class,'create']);
-Route::get('case/show',[OffenceController::class,'show']);
+Route::post('auth/forget_pass',[UsersController::class,'forget_pass']);
+Route::post('auth/reset_password',[UsersController::class,'reset_password']);
+Route::post('auth/finish_reset',[UsersController::class,'finish_reset']);
 
-Route::post('court/edit/{id}',[CourtCaseController::class,'edit']);
-Route::post('court/status/{id}',[CourtCaseController::class,'change_status']);
 
 
 
