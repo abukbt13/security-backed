@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('key');
             $table->string('user_id');
+            $table->string('case_name');
+            $table->string('description');
             $table->timestamps();
         });
     }

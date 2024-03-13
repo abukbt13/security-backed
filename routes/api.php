@@ -44,13 +44,13 @@ Route::post('auth/finish_reset',[UsersController::class,'finish_reset']);
 Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/user', function (Request $request)
     {return $request->user();});
-
-
-    Route::get('case/single/{id}/{key}/{secret}',[OffenceController::class,'show_single']);
     Route::get('auth/user',[UsersController::class,'auth']);
+
+
 
 //    cases
     Route::post('court/create',[CourtCaseController::class,'create']);
+    Route::get('case/single/{id}/{secret_key}',[CourtCaseController::class,'show_single']);
     Route::post('case/update/description/{case_id}',[CourtCaseController::class,'update']);
     Route::get('court/show',[CourtCaseController::class,'show']);
     Route::get('court/show_deactivated',[CourtCaseController::class,'show_deactivated']);

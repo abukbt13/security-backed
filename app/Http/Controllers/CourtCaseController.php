@@ -42,8 +42,10 @@ class CourtCaseController extends Controller
         $key=$request['key'];
         $secret ="@topsecurity@123secured";
         $secret_key=new Secret_Key();
-        $secret_key->user_id= $user_id;
-        $secret_key->key= $request->key;
+        $secret_key->user_id= encryptdata($user_id,$secret);
+        $secret_key->case_name= encryptdata($request->case_name,$secret);
+        $secret_key->description= encryptdata($request->description,$secret);
+        $secret_key->key= encryptdata($request->key,$secret);
         $secret_key->save();
 
         $court_case = new Court_case();
@@ -51,21 +53,21 @@ class CourtCaseController extends Controller
         // Assign values from the request to the model's properties
         $court_case->key = $secret_key->id;
 
-        $court_case->plaintiff_id = encryptdata($request->plaintiff_id,$secret);
-        $court_case->plaintiff_name = encryptdata($request->plaintiff_name,$secret);
-        $court_case->defendant_id = encryptdata($request->defendant_id,$secret);
-        $court_case->defendant_name = encryptdata($request->defendant_name,$secret);
-        $court_case->case_name = encryptdata($request->case_name,$secret);
+        $court_case->plaintiff_id = encryptdata($request->plaintiff_id,$key);
+        $court_case->plaintiff_name = encryptdata($request->plaintiff_name,$key);
+        $court_case->defendant_id = encryptdata($request->defendant_id,$key);
+        $court_case->defendant_name = encryptdata($request->defendant_name,$key);
+        $court_case->case_name = encryptdata($request->case_name,$key);
         $court_case->description =  encryptdata($request->description,$key);
-        $court_case->type_of_case = encryptdata($request->type_of_case,$secret);
-        $court_case->user_id = $user_id;
+        $court_case->type_of_case = encryptdata($request->type_of_case,$key);
+        $court_case->user_id = encryptdata($user_id,$secret);
 
 
         // Save the model to the database
         $court_case->save();
 
         // Assuming that storelog and storerandom_log are custom functions
-        storelog($court_case['type_of_case'], 'alteration', 'MacOs');
+        storelog($request->description, $court_case,'New case creation' );
         storerandom_log($court_case->id, $user_id, $request->key);
 
         return response([
@@ -74,7 +76,7 @@ class CourtCaseController extends Controller
         ]);
     }
 
-    public function update(Request $request, $case_id)
+    public function update(Request $request, $key_id)
     {
         $validator = Validator::make($request->all(), [
                 'key' => 'required',
@@ -89,6 +91,12 @@ class CourtCaseController extends Controller
             ], 422);
         }
         $auth_user = Auth::user()->id;
+        $secret ="@topsecurity@123secured";
+        function dencryptdata($data, $key_to_use) {
+            $encryption_key = base64_encode($key_to_use);
+            list($encrypted_data, $iv) = array_pad(explode('::', base64_decode($data), 2), 2, null);
+            return openssl_decrypt($encrypted_data, 'aes-256-cbc', $encryption_key, 0, $iv);
+        }
 
         function encryptdata($data,$key){
             $encryption_key= base64_encode($key);
@@ -97,8 +105,8 @@ class CourtCaseController extends Controller
             return base64_encode($encrypted . '::' . $iv);
         }
 
-        $case_update = Court_case::where('user_id', $auth_user)
-            ->where('id', $case_id)
+        $case_update = Court_case::where('user_id', dencryptdata($auth_user,$secret))
+            ->where('key', $key_id)
             ->first();
 
         $user_key=$request['key'];
@@ -123,42 +131,59 @@ class CourtCaseController extends Controller
 
         $secret = "@topsecurity@123secured";
         $auth_user = Auth::user()->id;
-        $actual_user_id = dencryptdata($auth_user, $secret);
-        // Fetch all rows from the Court_case table
-        $cases = Court_case::where('user_id', $auth_user)->where('status','active')->get();
-
-        // Decrypt each column in each row
-        $decrypted_cases = [];
-        foreach ($cases as $case) {
-            $id = $case->id;
-            $key = $case->key;
-            $defendant_name = dencryptdata($case->defendant_name, $secret);
-            $plaintiff_id  = dencryptdata($case->plaintiff_id, $secret);
-            $plaintiff_name = dencryptdata($case->plaintiff_name, $secret);
-            $case_name  = dencryptdata($case-> case_name , $secret);
-            $status = $case->status;
-            $type_of_case = dencryptdata($case->type_of_case, $secret);
-            $user_id = dencryptdata($case->user_id, $secret);
-
-            // Add the decrypted data to the result array
+        $secret_data = Secret_Key::where('user_id', dencryptdata($auth_user,$secret))->get();
+//        dd($secret_data);
+        foreach ($secret_data as $case) {
+            $id= $case->id;
+            $key= dencryptdata($case->key, $secret);
+            $case_name = dencryptdata($case->case_name, $secret);
+            $description = dencryptdata($case->description, $secret);
             $decrypted_cases[] = [
                 'id' => $id,
                 'key' => $key,
-                'defendant_name' => $defendant_name,
-                'plaintiff_id' => $plaintiff_id,
-                'plaintiff_name' => $plaintiff_name,
                 'case_name' => $case_name,
-                'status' => $status,
-                'type_of_case' => $type_of_case,
-                'user_id' => $user_id,
-                // Add more columns as needed
+                'description' => $description,
             ];
         }
-
         return response([
             'status' => 'success',
             'cases' => $decrypted_cases,
         ]);
+
+//        $actual_user_id = dencryptdata($auth_user, $secret);
+//        $actual_user_id = dencryptdata($auth_user, $secret);
+//        // Fetch all rows from the Court_case table
+//        $cases = Court_case::where('user_id', $auth_user)->where('status','active')->get();
+//
+//        // Decrypt each column in each row
+//        $decrypted_cases = [];
+//        foreach ($cases as $case) {
+//            $id = $case->id;
+//            $key = $case->key;
+//            $defendant_name = dencryptdata($case->defendant_name, $secret);
+//            $plaintiff_id  = dencryptdata($case->plaintiff_id, $secret);
+//            $plaintiff_name = dencryptdata($case->plaintiff_name, $secret);
+//            $case_name  = dencryptdata($case-> case_name , $secret);
+//            $status = $case->status;
+//            $type_of_case = dencryptdata($case->type_of_case, $secret);
+//            $user_id = dencryptdata($case->user_id, $secret);
+//
+//            // Add the decrypted data to the result array
+//            $decrypted_cases[] = [
+//                'id' => $id,
+//                'key' => $key,
+//                'defendant_name' => $defendant_name,
+//                'plaintiff_id' => $plaintiff_id,
+//                'plaintiff_name' => $plaintiff_name,
+//                'case_name' => $case_name,
+//                'status' => $status,
+//                'type_of_case' => $type_of_case,
+//                'user_id' => $user_id,
+//                // Add more columns as needed
+//            ];
+//        }
+//
+//
     }
 
     public function show_deactivated()
@@ -210,8 +235,14 @@ class CourtCaseController extends Controller
     }
     public function deactivate(Request $request,$id)
     {
+        function dencryptdata($data, $key_to_use) {
+            $encryption_key = base64_encode($key_to_use);
+            list($encrypted_data, $iv) = array_pad(explode('::', base64_decode($data), 2), 2, null);
+            return openssl_decrypt($encrypted_data, 'aes-256-cbc', $encryption_key, 0, $iv);
+        }
         $cases =Court_case::find($id);
         $cases['status'] = 'deactivated';
+//        dd($cases);
         $cases->update();
         return response([
             'status' => 'success',
@@ -298,5 +329,65 @@ class CourtCaseController extends Controller
             'message' => 'Successfully updated',
             'data' => $court_case,
         ]);
+    }
+
+    public function show_single(Request $request, $id, $secret_key) {
+        $auth_user = Auth::user()->id;
+        $find_key=Secret_Key::find($id);
+        $provided_key = $secret_key;
+
+        $secret = "@topsecurity@123secured";
+
+        function dencryptdata($data, $key_to_use) {
+            $encryption_key = base64_encode($key_to_use);
+            list($encrypted_data, $iv) = array_pad(explode('::', base64_decode($data), 2), 2, null);
+            return openssl_decrypt($encrypted_data, 'aes-256-cbc', $encryption_key, 0, $iv);
+        }
+
+        $decription_key = dencryptdata($find_key->key, $secret);
+
+
+
+        if ($decription_key === $provided_key) {
+            $cases = Court_case::where('user_id', dencryptdata($auth_user, $secret))->where('key',$id)->where('status', 'active')->get();
+
+            // Decrypt each column in each row
+            foreach ($cases as $case) {
+                $id = $case->id;
+                $key = $case->key;
+                $defendant_name = dencryptdata($case->defendant_name, $decription_key);
+                $plaintiff_id  = dencryptdata($case->plaintiff_id, $decription_key);
+                $plaintiff_name = dencryptdata($case->plaintiff_name, $decription_key);
+                $case_name  = dencryptdata($case-> case_name , $decription_key);
+                $status = $case->status;
+                $description = dencryptdata($case-> description , $decription_key);
+                $type_of_case = dencryptdata($case->type_of_case, $decription_key);
+                $user_id = dencryptdata($case->user_id, $decription_key);
+                $decrypted_cases[] = [
+                'id' => $id,
+                'key' => $key,
+                'defendant_name' => $defendant_name,
+                'plaintiff_id' => $plaintiff_id,
+                'plaintiff_name' => $plaintiff_name,
+                'case_name' => $case_name,
+                'status' => $status,
+                'description' => $description,
+                'type_of_case' => $type_of_case,
+                'user_id' => $user_id,
+                // Add more columns as needed
+            ];
+
+            }
+            return response([
+                'status' => 'success',
+                'cases' => $decrypted_cases,
+            ]);
+        }
+        else{
+            return response([
+                'status' => 'failed',
+                'message' => "Error Enter correct secret key",
+            ]);
+        }
     }
 }

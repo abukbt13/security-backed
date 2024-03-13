@@ -16,6 +16,7 @@ class AdminController extends Controller
             'email' => 'required|email|unique:users',
             'name' => 'required',
             'password' => 'required',
+            'phone' => 'required',
         ];
         $data = request()->all();
         $valid = Validator::make($data, $rules);
@@ -29,6 +30,7 @@ class AdminController extends Controller
         $user = new User();
         $user->email = $data['email'];
         $user->name = $data['name'];
+        $user->phone = $data['phone'];
         $user->password = hash('sha256', $request->password);
         $user->save();
         storelog('New user registration', $user,'Linux OS');
@@ -57,6 +59,7 @@ class AdminController extends Controller
         $user = User::find($id);
         $user->email = $data['email'];
         $user->name = $data['name'];
+        $user->phone = $data['phone'];
         $user->Update();
         storelog('Update operation done', $user,'Linux OS');
 
