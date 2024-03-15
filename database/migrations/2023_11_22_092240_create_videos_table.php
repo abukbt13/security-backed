@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('description');
             $table->string('video');
+            $table->string('case_id');
             $table->string('user_id');
             $table->timestamps();
         });

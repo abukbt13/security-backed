@@ -9,9 +9,7 @@ use Illuminate\Support\Facades\Validator;
 
 class DocumentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
     public function add(Request $request,$case_id)
     {
         $rules=[
@@ -26,79 +24,60 @@ class DocumentController extends Controller
                 'message'=>$valid->errors()
             ]);
         }
+        function encryptdata($data,$key){
+            $encryption_key= base64_encode($key);
+            $iv=openssl_random_pseudo_bytes(openssl_cipher_iv_length('aes-256-cbc'));
+            $encrypted = openssl_encrypt($data,'aes-256-cbc',$encryption_key,0,$iv);
+            return base64_encode($encrypted . '::' . $iv);
+        }
+
+        $user_id = Auth::user()->id;
+        $secret ="@topsecurity@123secured";
+
         $doc = $request->file('document');
         $docName = time() . '_' .  $doc->getClientOriginalName();
         $doc->move(public_path('Evidences/Documents'), $docName);
-//        $doc->storeAs('Evidences/Documents', $docName, 'public');
+//        $doc->storeAs('Evidences/Videos', $docName, 'public');
 
         $user_id=Auth::user()->id;
-
         $document = new Document();
-        $document->description = $request->description;
-        $document->case_id = $case_id;
-        $document->document = $docName;
-        $document->user_id = $user_id;
-//        $picture->user_id = Auth::user()->id;
+        $document->description = encryptdata($request->description,$secret);
+        $document->document = encryptdata($docName,$secret);
+        $document->case_id = encryptdata($case_id,$secret);
+        $document->user_id = encryptdata($user_id,$secret);
         $document->save();
 
         return response([
             'status'=>'success',
-            'message'=>'Document Successfully  saved !',
-            'document'=>$docName
+            'message'=>'Video successfully saved ! ',
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(Document $document,$case_id)
     {
+        $secret ="@topsecurity@123secured";
+        function dencryptdata($data, $key_to_use) {
+            $encryption_key = base64_encode($key_to_use);
+            list($encrypted_data, $iv) = array_pad(explode('::', base64_decode($data), 2), 2, null);
+            return openssl_decrypt($encrypted_data, 'aes-256-cbc', $encryption_key, 0, $iv);
+        }
+
         $user_id = Auth::user()->id;
-        $document = Document::where('user_id', '=', $user_id)->where('case_id',$case_id)->get(); // Execute the query using get()
-
+        $document = Document::where('user_id', dencryptdata($user_id,$secret))->where('case_id',dencryptdata($case_id,$secret))->get();
+        // Execute the query using get()
+        foreach ($document as $doc) {
+            $id= $doc->id;
+            $document = dencryptdata($doc->document, $secret);
+            $description = dencryptdata($doc->description, $secret);
+            $decrypted_documents[] = [
+                'id' => $id,
+                'document' => $document,
+                'description' => $description,
+            ];
+        }
         return response([
-            'status' => 'Success',
-            'documents' => $document,
+            'status' => 'success',
+            'documents' => $decrypted_documents,
         ]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Document $document)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Document $document)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Document $document)
-    {
-        //
     }
 }
