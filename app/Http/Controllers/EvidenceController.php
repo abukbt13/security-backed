@@ -45,8 +45,8 @@ class EvidenceController extends Controller
         $picture = new Evidence();
         $picture->description = encryptdata($request->description,$secret);
         $picture->picture = encryptdata($picName,$secret);
-        $picture->case_id = encryptdata($case_id,$secret);
-        $picture->user_id = encryptdata($user_id,$secret);
+        $picture->case_id = $case_id;
+        $picture->user_id = $user_id;
         $picture->save();
 
         return response([
@@ -55,31 +55,42 @@ class EvidenceController extends Controller
             'data'=>$picture
         ]);
     }
-    public function show_all($case_id){
-        $secret ="@topsecurity@123secured";
-        function dencryptdata($data, $key_to_use) {
+    public function show_all($case_id)
+    {
+        $secret = "@topsecurity@123secured";
+        function dencryptdata($data, $key_to_use)
+        {
             $encryption_key = base64_encode($key_to_use);
             list($encrypted_data, $iv) = array_pad(explode('::', base64_decode($data), 2), 2, null);
             return openssl_decrypt($encrypted_data, 'aes-256-cbc', $encryption_key, 0, $iv);
         }
 
         $user_id = Auth::user()->id;
-        $picture = Evidence::where('user_id', dencryptdata($user_id,$secret))->where('case_id',dencryptdata($case_id,$secret))
-        ->get(); // Execute the query using get()
-        foreach ($picture as $case) {
-            $id= $case->id;
-            $picture= dencryptdata($case->picture, $secret);
-            $description = dencryptdata($case->description, $secret);
-            $decrypted_pictures[] = [
-                'id' => $id,
-                'picture' => $picture,
-                'description' => $description,
-            ];
-        }
+        $count = Evidence::where('user_id',$user_id)->where('case_id',$case_id)->count();
+        if ($count > 0) {
+            $picture = Evidence::where('user_id', $user_id)->where('case_id', $case_id)->get(); // Execute the query using get()
+            foreach ($picture as $case) {
+                $id = $case->id;
+                $picture = dencryptdata($case->picture, $secret);
+                $description = dencryptdata($case->description, $secret);
+                $decrypted_pictures[] = [
+                    'id' => $id,
+                    'picture' => $picture,
+                    'description' => $description,
+                ];
+            }
 
-        return response([
-            'status' => 'Success',
-            'picture' => $decrypted_pictures,
-        ]);
+            return response([
+                'status' => 'Success',
+                'picture' => $decrypted_pictures,
+            ]);
+        }
+        else{
+            return response([
+                'status' => 'failed',
+                'message' => "No picture available",
+            ]);
+        }
     }
+
 }

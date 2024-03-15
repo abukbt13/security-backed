@@ -42,7 +42,7 @@ class CourtCaseController extends Controller
         $key=$request['key'];
         $secret ="@topsecurity@123secured";
         $secret_key=new Secret_Key();
-        $secret_key->user_id= encryptdata($user_id,$secret);
+        $secret_key->user_id= $user_id;
         $secret_key->case_name= encryptdata($request->case_name,$secret);
         $secret_key->description= encryptdata($request->description,$secret);
         $secret_key->key= encryptdata($request->key,$secret);
@@ -131,7 +131,7 @@ class CourtCaseController extends Controller
 
         $secret = "@topsecurity@123secured";
         $auth_user = Auth::user()->id;
-        $secret_data = Secret_Key::where('user_id', dencryptdata($auth_user,$secret))->get();
+        $secret_data = Secret_Key::where('user_id', $auth_user)->get();
 //        dd($secret_data);
         foreach ($secret_data as $case) {
             $id= $case->id;

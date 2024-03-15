@@ -44,8 +44,8 @@ class VideoController extends Controller
         $video = new Video();
         $video->description = encryptdata($request->description,$secret);
         $video->video = encryptdata($vidName,$secret);
-        $video->case_id = encryptdata($case_id,$secret);
-        $video->user_id = encryptdata($user_id,$secret);
+        $video->case_id = $case_id;
+        $video->user_id = $user_id;
         $video->save();
 
         return response([
@@ -65,22 +65,32 @@ class VideoController extends Controller
         }
 
         $user_id = Auth::user()->id;
-        $video = Video::where('user_id', dencryptdata($user_id,$secret))->where('case_id',dencryptdata($case_id,$secret))->get();
-        // Execute the query using get()
-        foreach ($video as $vid) {
-            $id= $vid->id;
-            $picture= dencryptdata($vid->video, $secret);
-            $description = dencryptdata($vid->description, $secret);
-            $decrypted_videos[] = [
-                'id' => $id,
-                'video' => $picture,
-                'description' => $description,
-            ];
+        $count = Video::where('user_id',$user_id)->where('case_id',$case_id)->count();
+        if ($count > 0){
+            $video = Video::where('user_id', $user_id)->where('case_id',$case_id)->get();
+            // Execute the query using get()
+
+            foreach ($video as $vid) {
+                $id= $vid->id;
+                $picture= dencryptdata($vid->video, $secret);
+                $description = dencryptdata($vid->description, $secret);
+                $decrypted_videos[] = [
+                    'id' => $id,
+                    'video' => $picture,
+                    'description' => $description,
+                ];
+            }
+            return response([
+                'status' => 'success',
+                'videos' => $decrypted_videos,
+            ]);
         }
-        return response([
-            'status' => 'success',
-            'videos' => $decrypted_videos,
-        ]);
+       else{
+           return response([
+               'status' => 'failed',
+               'message' => 'No videos were found',
+           ]);
+       }
     }
 
 }

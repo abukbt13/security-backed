@@ -43,8 +43,8 @@ class DocumentController extends Controller
         $document = new Document();
         $document->description = encryptdata($request->description,$secret);
         $document->document = encryptdata($docName,$secret);
-        $document->case_id = encryptdata($case_id,$secret);
-        $document->user_id = encryptdata($user_id,$secret);
+        $document->case_id = $case_id;
+        $document->user_id = $user_id;
         $document->save();
 
         return response([
@@ -63,21 +63,31 @@ class DocumentController extends Controller
         }
 
         $user_id = Auth::user()->id;
-        $document = Document::where('user_id', dencryptdata($user_id,$secret))->where('case_id',dencryptdata($case_id,$secret))->get();
-        // Execute the query using get()
-        foreach ($document as $doc) {
-            $id= $doc->id;
-            $document = dencryptdata($doc->document, $secret);
-            $description = dencryptdata($doc->description, $secret);
-            $decrypted_documents[] = [
-                'id' => $id,
-                'document' => $document,
-                'description' => $description,
-            ];
+        $count  = Document::count();
+        if ($count > 0) {
+            $document = Document::where('user_id', $user_id)->where('case_id',$case_id)->get();
+            // Execute the query using get()
+            foreach ($document as $doc) {
+                $id= $doc->id;
+                $document = dencryptdata($doc->document, $secret);
+                $description = dencryptdata($doc->description, $secret);
+                $decrypted_documents[] = [
+                    'id' => $id,
+                    'document' => $document,
+                    'description' => $description,
+                ];
+            }
+            return response([
+                'status' => 'success',
+                'documents' => $decrypted_documents,
+            ]);
         }
-        return response([
-            'status' => 'success',
-            'documents' => $decrypted_documents,
-        ]);
+        else
+        {
+            return response([
+                'status' => 'failed',
+            ]);
+        }
+
     }
 }
