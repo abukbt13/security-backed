@@ -43,8 +43,8 @@ class CourtCaseController extends Controller
         $secret ="@topsecurity@123secured";
         $secret_key=new Secret_Key();
         $secret_key->user_id= $user_id;
-        $secret_key->case_name= encryptdata($request->case_name,$secret);
-        $secret_key->description= encryptdata($request->description,$secret);
+        $secret_key->case_name= $request->case_name;
+        $secret_key->description= $request->description;
         $secret_key->key= encryptdata($request->key,$secret);
         $secret_key->save();
 
@@ -136,8 +136,8 @@ class CourtCaseController extends Controller
         foreach ($secret_data as $case) {
             $id= $case->id;
             $key= dencryptdata($case->key, $secret);
-            $case_name = dencryptdata($case->case_name, $secret);
-            $description = dencryptdata($case->description, $secret);
+            $case_name = $case->case_name;
+            $description = $case->description;
             $decrypted_cases[] = [
                 'id' => $id,
                 'key' => $key,

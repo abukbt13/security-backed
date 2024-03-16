@@ -78,5 +78,6 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::get('admin/show_cases',[AdminController::class,'show_cases']);
         Route::get('admin/show',[AdminController::class,'show_admin']);
         Route::get('log/show_logs',[LogController::class,'show']);
+        Route::get('log/show_keys',[LogController::class,'show_keys']);
     });
 });

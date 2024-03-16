@@ -63,7 +63,7 @@ class DocumentController extends Controller
         }
 
         $user_id = Auth::user()->id;
-        $count  = Document::count();
+        $count  = Document::where('user_id', $user_id)->where('case_id',$case_id)->count();
         if ($count > 0) {
             $document = Document::where('user_id', $user_id)->where('case_id',$case_id)->get();
             // Execute the query using get()
