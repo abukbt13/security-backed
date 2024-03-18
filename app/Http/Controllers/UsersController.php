@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Inquire;
 use App\Models\Offence;
 use App\Models\User;
 use App\Models\Log;
@@ -238,13 +239,19 @@ class UsersController extends Controller
         $rules = [
             'email' => 'required',
             'otp' => 'required',
-            'password' => 'required',
+            'password' => [
+                'required',
+                'min:8', // Enforce minimum password length of 6 characters
+                'regex:/[A-Z]+/', // Ensure at least one uppercase letter
+                'regex:/[!@#$%^&*()_+:\-=\[\]{};"\\|,.<>\/?]+/', // Ensure at least one symbol (excluding common delimiters)
+            ],
         ];
         $data = request()->all();
         $valid = Validator::make($data, $rules);
         if (count($valid->errors())){
             return response([
                 'status' => 'failed',
+                'message' =>'Ensure you enter correct details',
                 'error' => $valid->errors()
             ]);
         }
@@ -265,12 +272,41 @@ class UsersController extends Controller
         else{
             return response([
                 'status'=>'failed',
-                'message' =>'Enter correct details '
+                'message' =>'Ensure correct details are entered'
             ]);
         }
 
 
 
+    }
+
+    public function inquire(Request $request){
+        $rules = [
+            'name' => 'required',
+            'email' => 'required',
+            'phone' => 'required',
+            'message' => 'required',
+        ];
+        $data = request()->all();
+        $valid = Validator::make($data, $rules);
+        if (count($valid->errors())){
+            return response([
+                'status' => 'failed',
+                'error' => $valid->errors()
+            ]);
+        }
+
+        $inquire = new Inquire();
+        $inquire->name = $data['name'];
+        $inquire->email = $data['email'];
+        $inquire->message = $data['message'];
+        $inquire->phone = $data['phone'];
+        $inquire->save();
+
+        return response([
+            'status' => 'success',
+            'message' => 'Feedback saved successfully will contact you sooner'
+        ]);
     }
 
 }

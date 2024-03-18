@@ -32,6 +32,9 @@ Route::post('auth/login',[UsersController::class,'login']);
 Route::post('auth/verify/{id}',[UsersController::class,'verify']);
 Route::get('auth/show-all',[UsersController::class,'show']);
 
+//inquire
+Route::post('user/inquire',[UsersController::class,'inquire']);
+
 Route::post('auth/forget_pass',[UsersController::class,'forget_pass']);
 Route::post('auth/reset_password',[UsersController::class,'reset_password']);
 Route::post('auth/finish_reset',[UsersController::class,'finish_reset']);
@@ -76,6 +79,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::post('admin/create',[AdminController::class,'create']);
         Route::post('admin/edit/{id}',[AdminController::class,'edit']);
         Route::get('admin/show_cases',[AdminController::class,'show_cases']);
+
+        Route::get('admin/show_inquiries',[AdminController::class,'show_inquiries']);
+
+
         Route::get('admin/show',[AdminController::class,'show_admin']);
         Route::get('log/show_logs',[LogController::class,'show']);
         Route::get('log/show_keys',[LogController::class,'show_keys']);

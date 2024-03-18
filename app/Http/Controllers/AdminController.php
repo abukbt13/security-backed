@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Court_case;
+use App\Models\Inquire;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -15,9 +16,15 @@ class AdminController extends Controller
         $rules = [
             'email' => 'required|email|unique:users',
             'name' => 'required',
-            'password' => 'required',
-            'phone' => 'required',
-        ];
+            'password' => [
+                'required',
+                'min:6', // Enforce minimum password length of 6 characters
+                'regex:/[A-Z]+/', // Ensure at least one uppercase letter
+                'regex:/[!@#$%^&*()_+:\-=\[\]{};"\\|,.<>\/?]+/', // Ensure at least one symbol (excluding common delimiters)
+                ],
+                'phone' => 'required|digits:10', // Validate phone to be 10 characters
+            ];
+
         $data = request()->all();
         $valid = Validator::make($data, $rules);
         if (count($valid->errors())){
@@ -29,8 +36,9 @@ class AdminController extends Controller
 
         $user = new User();
         $user->email = $data['email'];
+        $user_phone = ltrim($data['phone'], '0');
+        $user->phone = '+254' . $user_phone;
         $user->name = $data['name'];
-        $user->phone = $data['phone'];
         $user->password = hash('sha256', $request->password);
         $user->save();
         storelog('New user registration', $user,'Linux OS');
@@ -43,10 +51,13 @@ class AdminController extends Controller
     }
     public function edit(Request $request,$id)
     {
+
         $rules = [
             'email' => 'required',
             'name' => 'required',
+            'phone' => 'required|digits:9', // Validate phone to be 10 characters
         ];
+
         $data = request()->all();
         $valid = Validator::make($data, $rules);
         if (count($valid->errors())){
@@ -58,8 +69,10 @@ class AdminController extends Controller
 
         $user = User::find($id);
         $user->email = $data['email'];
+        $user_phone = ltrim($data['phone'], '0');
+        $user->phone = '+254' . $user_phone;
         $user->name = $data['name'];
-        $user->phone = $data['phone'];
+
         $user->Update();
         storelog('Update operation done', $user,'Linux OS');
 
@@ -71,7 +84,7 @@ class AdminController extends Controller
     }
     public function show_admin(Request $request)
     {
-        $admin=User::all();
+        $admin=User::where('role','admin')->get();
         return response([
             'status'=>'success',
             'users'=>$admin,
@@ -84,6 +97,15 @@ class AdminController extends Controller
         return response([
             'status'=>'success',
             'cases'=>$cases,
+        ]);
+
+    }
+    public function show_inquiries(Request $request)
+    {
+        $inquiries=Inquire::all();
+        return response([
+            'status'=>'success',
+            'inquiries'=>$inquiries,
         ]);
 
     }
